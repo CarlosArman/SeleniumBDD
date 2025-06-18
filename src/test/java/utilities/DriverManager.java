@@ -16,6 +16,7 @@ public class DriverManager {
 
     public void buildDriver() {
         if (runServer) {
+            Logs.debug("buildRemoteDriver");
             buildRemoteDriver();
         } else {
             buildLocalDriver();
@@ -29,6 +30,7 @@ public class DriverManager {
     }
 
     private void buildRemoteDriver() {
+        buildLocalDriver();
     }
 
     private void buildLocalDriver() {
@@ -41,14 +43,15 @@ public class DriverManager {
 
         final var browser = Browser.valueOf(browserProperty.toUpperCase());
         Logs.debug("Inicializando el driver: %s", browser);
+
         Logs.debug("Headless mode? %b", headlessMode);
 
         final var driver = switch (browser) {
             case CHROME -> {
                 final var chromeOptions = new ChromeOptions();
-                if (headlessMode) {
-                    chromeOptions.addArguments("--headless=new");
-                }
+                //if (headlessMode) {
+                chromeOptions.addArguments("--headless=new");
+                // }
                 yield new ChromeDriver(chromeOptions);
             }
             case EDGE -> {

@@ -10,7 +10,7 @@ public class WebdriverProvider {
         threadLocal.set(driver);
     }
 
-    public WebDriver get() {
+    public static WebDriver get() {
         return threadLocal.get();
     }
 }
