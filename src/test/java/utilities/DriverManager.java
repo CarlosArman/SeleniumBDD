@@ -1,5 +1,6 @@
 package utilities;
 
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.edge.EdgeDriver;
@@ -26,11 +27,23 @@ public class DriverManager {
     public void killDriver() {
         Logs.info("TearDown del padre");
         Logs.debug("Matando el driver");
-        new WebdriverProvider().get().quit();
+        WebdriverProvider.get().quit();
     }
 
     private void buildRemoteDriver() {
-        buildLocalDriver();
+
+        ChromeOptions chromeOptions = getChromeOptions();
+
+        WebDriver driver = new ChromeDriver(chromeOptions);
+
+        Logs.debug("Maximizanndo la pantalla");
+        driver.manage().window().maximize();
+
+        Logs.debug("Borrando las cookies");
+        driver.manage().deleteAllCookies();
+
+        Logs.debug("Asignando driver al webdriver provider ");
+        new WebdriverProvider().set(driver);
     }
 
     private void buildLocalDriver() {
@@ -49,9 +62,9 @@ public class DriverManager {
         final var driver = switch (browser) {
             case CHROME -> {
                 final var chromeOptions = new ChromeOptions();
-                //if (headlessMode) {
-                chromeOptions.addArguments("--headless=new");
-                // }
+                if (headlessMode) {
+                    chromeOptions.addArguments("--headless=new");
+                }
                 yield new ChromeDriver(chromeOptions);
             }
             case EDGE -> {
@@ -71,16 +84,6 @@ public class DriverManager {
             case SAFARI -> new SafariDriver();
 
         };
-
-        // Crear objeto de ChromeOptions
-        ChromeOptions options = getChromeOptions();
-
-        // Crear Map para almacenar preferencias
-//        Map<String, Object> prefs = getStringObjectMap();
-
-        // Establecer preferencias experimentales
-//        options.setExperimentalOption("prefs", prefs);
-
 
         Logs.debug("Maximizanndo la pantalla");
         driver.manage().window().maximize();
@@ -149,15 +152,24 @@ public class DriverManager {
         // Disable Chrome Password Manager
         options.addArguments("--disable-save-password-bubble");
 
-        //   options.addArguments("--headless"); // Ejecutar en segundo plano
+        options.addArguments("--headless=new"); // o "--headless" si usas una versión anterior
+
         options.addArguments("--disable-gpu"); // Recomendado para mejorar la estabilidad
+
+        options.addArguments("--no-sandbox");
+
+        options.addArguments("--disable-dev-shm-usage");
+
 //        options.addArguments("--window-size=1920,1080"); // Ajustar el tamaño de la ventana
 //        options.addArguments("--remote-debugging-port=9222"); // Puerto para depuración
+        // Crear Map para almacenar preferencias
+//        Map<String, Object> prefs = getStringObjectMap();
 
+        // Establecer preferencias experimentales
+//        options.setExperimentalOption("prefs", prefs);
+        
         options.addArguments("--incognito");
-        ; // Iniciar en modo incógnito
-
-
+// Iniciar en modo incógnito
         return options;
     }
 }
